@@ -1,0 +1,121 @@
+USE [ac20]
+GO
+
+/****** Object:  StoredProcedure [dbo].[p_cust_GetMenuItemsByMenuId_forXML]    Script Date: 3/31/2017 12:27:53 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+ALTER PROCEDURE [dbo].[p_cust_GetMenuItemsByMenuId_forXML] --4261,14297, 1301
+(
+	@locid bigint,
+	@menuid bigint,
+	@stationid bigint
+)
+AS
+
+BEGIN
+;WITH Query AS (
+select 
+		mi.menuitemid,
+		s.stationid,
+		ls.LocationStationId,
+		s.stationname,
+		midd.dayid ,
+		midd.dayname,
+		ls.locationid,
+		mi.ItemDesc,
+		'$' + CONVERT(varchar(25),mip.Price,0) as Price,
+		mip.PriceDescription as PriceDesc,
+		'$' + CONVERT(varchar(25),mip2.Price,0) as Price2,
+		mip2.PriceDescription as PriceDesc2,
+		REPLACE(mi.fulldesc,CHAR(11),' ') as fulldesc,
+		Convert(varchar(10),mi.Calories,0) + 'cal' as Calories,
+		mi.fmsid,
+		mi.servingsize,
+		mi.bVerifyNutrition,
+		mi.bOverride,
+		mi.OverrideText
+from menuitems mi (nolock)
+inner join menuitemdisplayday midd (nolock) on mi.dayofweek=midd.dayid
+inner join menustations ms (nolock) on  mi.menustationid=ms.menustationid
+inner join locationstations ls (nolock) on ms.locationstationid=ls.locationstationid
+inner join Locations l (nolock) on l.LocationId=ls.LocationId
+inner join dbo.LocationComponents lc (nolock) on lc.[LocationComponentId]=l.LocationComponentId
+inner join dbo.LocationFamily lf (nolock) on lf.LocationFamilyId=lc.LocationFamilyId
+inner join stations s (nolock) on  ls.stationid=s.stationid
+left join (
+	select mip.*, ROW_NUMBER()  OVER (PARTITION BY  mip.MenuItemId ORDER BY mip.MenuItemId) row
+	from dbo.MenuItemPrice mip (nolock)
+	where mip.Active=1
+)mip on mip.MenuItemId=mi.MenuItemId and lf.bShowPrices=1 and mip.row=1
+left join (
+	select mip.*, ROW_NUMBER() OVER (PARTITION BY mip.MenuItemId ORDER BY mip.MenuItemId) row
+	from dbo.MenuItemPrice mip (nolock)
+	where mip.Active=1
+)mip2  on mip2.MenuItemId=mi.MenuItemId and lf.bShowPrices=1 and mip2.row=2
+where 1=1
+and mi.menuid=@menuid
+and mi.LocationId=@locid
+and mi.active=1
+and (s.Stationid = @stationid or -1=@stationid)
+--and mi.bOverride=0
+UNION
+	 select
+			ds.DailyServeItemId AS 'menuitemid',
+			s.Stationid,
+			ds.LocationStationId,
+			s.StationName,
+			-1 dayid,
+			'Everyday' [dayname],
+			ls.LocationId,
+			ds.ItemDesc,
+			'' Price,
+			'' PriceDesc,
+			'' Price2,
+			'' PriceDesc2,
+			REPLACE(mi.fulldesc,CHAR(11),' ') as fulldesc,
+			Convert(varchar(10),mi.Calories,0) + 'cal' as Calories,
+			mi.fmsid,
+			mi.servingsize,
+			mi.bVerifyNutrition,
+			mi.bOverride,
+			mi.OverrideText
+			from DailyServeItems ds (nolock)
+			inner join locationstations ls (nolock) on ds.LocationStationId=ls.LocationStationId
+			inner join stations s (nolock) on ls.StationId=s.Stationid
+			inner join MenuItems mi (nolock) on mi.MenuItemId=ds.DailyServeItemId
+			where
+			(s.Stationid = @stationid or -1=@stationid)
+			and ds.locationid=@locid
+			and ds.active=1
+			--and mi.bOverride=0  not for daily serve
+--order by mi.ordernumber, mi.itemdesc
+),
+Stations As ( select distinct stationname, stationid, locationId
+			from Query)
+
+select
+	StationName, StationId, locationid, (
+
+	-- SELECT dayname,MenuItemId, DayId, ItemDesc, fulldesc, fmsid, servingsize, Price, PriceDescription
+	SELECT dayname,MenuItemId, DayId, ItemDesc, fulldesc, Calories, fmsid, servingsize, Price, PriceDesc, Price2, PriceDesc2, bVerifyNutrition as ShowNutrition, bOverride, OverrideText
+		FROM Query q
+		where q.stationid=s.stationid
+		FOR XML PATH('Item'),TYPE
+	)
+	from Stations s
+FOR XML PATH('Station'), ROOT('Menu')
+
+END
+
+
+
+GO
+
+
