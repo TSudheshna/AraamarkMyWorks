@@ -1,0 +1,29 @@
+    public void GetNutritionValues(string productNumber)
+        {
+            
+            string locIdCafe = ConfigurationManager.AppSettings["locIdCafe"];
+            string locIdLifeWorks = ConfigurationManager.AppSettings["locIdLifeWorks"];
+            Nutrition nutriInfo = new Nutrition();
+
+            if(isLifeWorkLoc)
+            {
+                string pId = productNumber + locIdLifeWorks;
+                string url = ConfigurationManager.AppSettings["url"] + pId;
+                nutriInfo = RestAPI.RestAPICall(url, ConfigurationManager.AppSettings["username"], ConfigurationManager.AppSettings["password"]);
+            }
+
+            else
+            {
+                string pId = productNumber + locIdCafe;
+                string url = ConfigurationManager.AppSettings["url"] + pId;
+                nutriInfo = RestAPI.RestAPICall(url, ConfigurationManager.AppSettings["username"], ConfigurationManager.AppSettings["password"]);
+            }             
+           
+
+                if (!string.IsNullOrEmpty(nutriInfo.ProductId))
+                    AssignValues(nutriInfo,productNumber);
+                else
+                    isValidProduct = false;
+            
+                       
+        }
