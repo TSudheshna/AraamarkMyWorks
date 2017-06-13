@@ -17,9 +17,7 @@
 				</nav>
 				<nav class="utility">
 				     <a href="/order/confirmation/" class="btn back"><span>Back</span></a> 
-                     <asp:LinkButton runat="server" CssClass="btn" ID="lnkSubmitCreditTop" OnClick="lnkSubmitCredit_Click" style="display: none;"><span>Submit Order</span></asp:LinkButton>
-                       <asp:Button ID="btnPostNew" runat="server" Height="0px" Width="0px" Visible="true" OnClientClick="return true;" OnClick="btnPostNew_Click1" />
-                     <%--<a href="#" class="btn" id="lnkSubmitCreditTop" runat="server" style="display: none;"><span>Submit Order</span></a> --%>
+                     <a href="#" class="btn" id="lnkSubmitCreditTop" style="display: none;"><span>Submit Order</span></a> 
                      <asp:LinkButton runat="server" CssClass="btn" OnClientClick="return forceCreditCard();blockUI();" id="lnkSubmitTop" OnClick="lnkSubmit_OnClick"><span>Submit Order</span></asp:LinkButton>
                     <asp:LinkButton runat="server" CssClass="btn" id="LinkButton1" OnClick="lnkCancel_OnClick"><span>Cancel</span></asp:LinkButton>
 				</nav>
@@ -34,9 +32,10 @@
 					</fieldset>
 					
 					<fieldset class="new-card" style="display: none;">
-                        <div class="form-el" id="convergeError" runat="server" visible="false">
-                            <font color="red"><strong>TPlease check your card details and resubmit.</strong></font>
+                        <div style="padding-left: 10em; padding-bottom: 1em;">
+                            <label id="convergeError" style="align-content:center; color:red; font-weight:bold; display:block;"></label>
                         </div>
+                        
                         <ul>
                         <div class="form-el radio">
                             <input type="radio" id="orderOnly" runat="server" clientidmode="Static" class="cardSave" name="cardSave" checked="True" value="orderOnly" />
@@ -84,7 +83,7 @@
 								<li class="clear"></li>
 							</ul>
 						</div>
-						<%--		<div class="form-el">
+							<%--		<div class="form-el">
 							<label for="cardName">*Name on Card</label>
 							<input id="cardName" type="text" required="required" />
 							<span class="err">Name on card is required</span>
@@ -92,31 +91,31 @@
 						</div>--%>
                         <div class="form-el col-50">
 							<label for="cardFirstName">*First Name</label>
-							<input id="cardFirstName" type="text" required="required"  runat="server"/>
+							<input id="cardFirstName" type="text" required="required"/>
 							<span class="err">First Name is required</span>
 							<div class="clear"></div>
 						</div>
                         <div class="form-el col-50 col-last">
 							<label for="cardLastName">*Last Name</label>
-							<input id="cardLastName" type="text" required="required" runat="server" />
+							<input id="cardLastName" type="text" required="required"/>
 							<span class="err">Last Name is required</span>
 							<div class="clear"></div>
 						</div>
 						<div class="form-el col-60">
 							<label for="cardNum">*Credit Card Number</label>
-							<input id="cardNum" type="text" required="required" maxlength="16" runat="server"/>
+							<input id="cardNum" type="text" required="required" maxlength="16"/>
 							<span class="err">Credit card number on card is required</span>
 							<div class="clear"></div>
 						</div>
 						<div class="form-el col-40 col-last">
 							<label for="cardCSV">*Security Code</label>
-							<input id="cardCSV" type="text" required="required"  maxlength="4" runat="server"/>
+							<input id="cardCSV" type="text" required="required"  maxlength="4" />
 							<span class="err">Security code is required</span>
 							<div class="clear"></div>
 						</div>
 						<div class="form-el col-25 spacer">
 							<label for="cardMonth">*Expiration Date</label>
-							<select id="cardMonth" required="required" runat="server">
+							<select id="cardMonth" required="required">
 								<option value="0">Month</option>
 								<option value="01">January</option>
 								<option value="02">February</option>
@@ -211,10 +210,10 @@
 				</div>
 				<nav class="utility">
 				    <a href="/order/confirmation/" class="btn back"><span>Back</span></a> 
-                   <asp:LinkButton runat="server" CssClass="btn" ID="lnkSubmitCredit" style="display: none;" OnClick="lnkSubmitCredit_Click"><span>Submit Order</span></asp:LinkButton>
-                    <%--<a href="#" class="btn" id="lnkSubmitCredit" style="display: none;"><span>Submit Order</span></a> --%>
+                    <a href="#" class="btn" id="lnkSubmitCredit" style="display: none;"><span>Submit Order</span></a> 
                     <asp:LinkButton runat="server" CssClass="btn" id="lnkSubmit" OnClientClick="return forceCreditCard();blockUI();" OnClick="lnkSubmit_OnClick"><span>Submit Order</span></asp:LinkButton>
                     <asp:LinkButton runat="server" CssClass="btn" id="LinkButton2" OnClick="lnkCancel_OnClick"><span>Cancel</span></asp:LinkButton>
+                    <asp:HiddenField runat="server" ID="hdnOrderSumaryId" />
 				</nav>
 			</div>
 		</div>
@@ -222,7 +221,7 @@
 </div>
 
 <script type="text/javascript" language="javascript">
-    
+
     (function () {
         var $,
           __indexOf = [].indexOf || function (item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -389,59 +388,52 @@
     $(function () {
         $('.po-pane-move').css('position', 'relative');
 
-        $("#<%= lnkSubmitCredit.ClientID %>,#<%= lnkSubmitCreditTop.ClientID %>").click(function (e) {
-            e.preventDefault();           
-            _gaq.push(['_trackEvent', 'Conversions', 'Submit Order']);       
+        $("#lnkSubmitCredit,#lnkSubmitCreditTop").click(function (e) {
+            e.preventDefault();
+            _gaq.push(['_trackEvent', 'Conversions', 'Submit Order']);
             window.setTimeout("window.location.href='" + $(this).attr('href') + "'", 100);
         });
-        
+
         $("#<%= lnkSubmit.ClientID %>,#<%= lnkSubmitTop.ClientID %>").click(function (e) {
             _gaq.push(['_trackEvent', 'Conversions', 'Submit Order']);
         });
 
-        $("#<%= lnkSubmitCredit.ClientID %>,#<%= lnkSubmitCreditTop.ClientID %>").click(function() {
+        $('#lnkSubmitCredit, #lnkSubmitCreditTop').click(function () {
             var test = '';
             blockUI();
-            
+
             $('span.err').hide();
 
-          /*  if ($('#cardName').val().length == 0) {
-                $('#cardName').next('span.err').show();
-                $('#cardName').focus();
-                unblockUI();
-                return false;
-            }
-*/
-  if ($('#<%= cardFirstName.ClientID %>').val().length == 0) {
-                $('#<%= cardFirstName.ClientID %>').next('span.err').show();
-                $('#<%= cardFirstName.ClientID %>').focus();
+            if ($('#cardFirstName').val().length == 0) {
+                $('#cardFirstName').next('span.err').show();
+                $('#cardFirstName').focus();
                 unblockUI();
                 return false;
             }
 
-  if ($('#<%= cardLastName.ClientID %>').val().length == 0) {
-                $('#<%= cardLastName.ClientID %>').next('span.err').show();
-                $('#<%= cardLastName.ClientID %>').focus();
+            if ($('#cardLastName').val().length == 0) {
+                $('#cardLastName').next('span.err').show();
+                $('#cardLastName').focus();
                 unblockUI();
                 return false;
             }
 
-            if ($('#<%= cardNum.ClientID %>').val().length == 0) {
-                $('#<%= cardNum.ClientID %>').next('span.err').show();
-                $('#<%= cardNum.ClientID %>').focus();
+            if ($('#cardNum').val().length == 0) {
+                $('#cardNum').next('span.err').show();
+                $('#cardNum').focus();
                 unblockUI();
                 return false;
-            }  
-            if ($('#<%= cardCSV.ClientID %>').val().length == 0) {
-                $('#<%= cardCSV.ClientID %>').next('span.err').show();
-                $('#<%= cardCSV.ClientID %>').focus();
+            }
+            if ($('#cardCSV').val().length == 0) {
+                $('#cardCSV').next('span.err').show();
+                $('#cardCSV').focus();
                 unblockUI();
                 return false;
             }
 
-            if ($('#<%= cardMonth.ClientID %>').val() == 0 || (parseInt($('#<%= cardMonth.ClientID %>').val()) < parseInt('<%= DateTime.Now.Month %>') && parseInt($('#<%= cardYear.ClientID %>').val()) == parseInt('<%= DateTime.Now.Year %>'))) {
-               $('#<%= cardMonth.ClientID %>').siblings('.err').show();
-                $('#<%= cardMonth.ClientID %>').focus();
+            if ($('#cardMonth').val() == 0 || (parseInt($('#cardMonth').val()) < parseInt('<%= DateTime.Now.Month %>') && parseInt($('#<%= cardYear.ClientID %>').val()) == parseInt('<%= DateTime.Now.Year %>'))) {
+                $('#cardMonth').siblings('.err').show();
+                $('#cardMonth').focus();
                 unblockUI();
                 return false;
             }
@@ -453,7 +445,7 @@
                 return false;
             }
 
-            $('#<%= cardNum.ClientID %>').validateCreditCard(function (result) {
+            $('#cardNum').validateCreditCard(function (result) {
                 //var paymentTypeName = $("input[name='cardType[]']:checked").attr("id");
                 var paymentTypeName = $('.cardType:checked').attr("id");
                 var isDefaultPayment = $('#futureOrders').is(':checked');
@@ -463,37 +455,66 @@
                     (result.card_type.name == "mastercard" && paymentTypeName == "cardMC") ||
                     (result.card_type.name == "amex" && paymentTypeName == "cardAMEX") ||
                     (result.card_type.name == "discover" && paymentTypeName == "cardDisc")) {
-                         unblockUI();
-  $('#<%= btnPostNew.ClientID %>').click();
-                         return true;
+                        //var paymentTypeId = $('.form-el.radio input:checked').val();
+                        var paymentTypeId = $('.cardType:checked').val();
+                        //$.support.cors = true;
+                        var orderSummaryId = $('#<%= hdnOrderSumaryId.ClientID %>').val(); 
+                        var facilityId = <%= FacilityId %>;
+                        var paramList = "{cardNumber: '" + $('#cardNum').val() + "', CVV: '" + $('#cardCSV').val() + "', cardExpMonthMM: '" + $('#cardMonth').val() + "', cardExpYYYY: '"
+                    + $('#<%= cardYear.ClientID %>').val() + "', FirstName: '" + $('#cardFirstName').val()
+                    + "', LastName: '" + $('#cardLastName').val() + "', cardTypeID: '" + paymentTypeId
+                    + "',  setCardasDefault: '" + isDefaultPayment + "', OrderSummaryId: '" + orderSummaryId + "', FacilityId: '" + facilityId + "'}";
+                        alert(paramList);
+                        $.ajax({
+                            type: "POST",
+                            url: "/controls/CalendarEvents.asmx/SaveNewCardDetails",
+                            dataType: 'text',
+                            contentType: "application/json; charset=utf-8",
+                            data: paramList,
+                            success: function (data, textStatus, jqXHR) {
+                                alert(jqXHR.responseText); 
+                                if(data.indexOf("GOTORECEIPT") >= 0)  //GOTORECEIPT
+                                    window.location = "/order/receipt/";
+                                else
+                                    $('#convergeError').text('Network Error. Please try resubmitting this order after a while');
+                            }
+                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                            alert("in fail"); 
+                            unBlockUI();
+                            alert(' ERROR ' + textStatus + ' - ' + errorThrown + ' : ' + jqXHR.responseText);
+                            return false;
+                        }).done(function (data, textStatus, jqXHR) {
+                            unblockUI();
+                            return true;
+                        });
                     } else {
-                        $('#<%= cardNum.ClientID %>').next('span.err').html('Please enter a valid Card Type to match the Card Number');
-                        $('#<%= cardNum.ClientID %>').next('span.err').show();
-                        $('#<%= cardNum.ClientID %>').focus();
+                        $('#cardNum').next('span.err').html('Please enter a valid Card Type to match the Card Number');
+                        $('#cardNum').next('span.err').show();
+                        $('#cardNum').focus();
                         unblockUI();
                         return false;
                     }
                 } else {
-                    $('#<%= cardNum.ClientID %>').next('span.err').html('Please enter a valid Credit Card Number');
-                    $('#<%= cardNum.ClientID %>').next('span.err').show();
-                    $('#<%= cardNum.ClientID %>').focus();
+                    $('#cardNum').next('span.err').html('Please enter a valid Credit Card Number');
+                    $('#cardNum').next('span.err').show();
+                    $('#cardNum').focus();
                     unblockUI();
                     return false;
                 }
             }, { accept: ['visa', 'mastercard', 'discover', 'amex'] });
         });
 
-        $('#emailYes').click(function() {
+        $('#emailYes').click(function () {
             $('#emailNo').removeAttr('checked').next('label').removeClass('checked');
             $(this).attr('checked', 'checked').next('label').addClass('checked');
         });
-        
+
         $('#emailNo').click(function () {
             $('#emailYes').removeAttr('checked').next('label').removeClass('checked');
             $(this).attr('checked', 'checked').next('label').addClass('checked');
         });
 
-        $('#<%= cardNum.ClientID %>, #<%= cardCSV.ClientID %>').keypress(function () {
+        $('#cardNum, #cardCSV').keypress(function () {
             return isNumberKey(event);
         });
 
@@ -514,11 +535,10 @@
             $('#orderOnly').removeAttr('checked').next('label').removeClass('checked');
             $(this).attr('checked', 'checked').next('label').addClass('checked');
         });
-        
-        $('.po-panes select').selectBox();
 
+        $('.po-panes select').selectBox();
     });
-    
+
     function blockUI() {
         $.blockUI({
             css: {
@@ -546,13 +566,13 @@
             $(obj).removeClass('checked');
             $('.new-card').slideDown();
             $('#<%= lnkSubmit.ClientID %>, #<%= lnkSubmitTop.ClientID %>').hide();
-            $('#<%= lnkSubmitCredit.ClientID %>, #<%= lnkSubmitCreditTop.ClientID %>').show();
+            $('#lnkSubmitCredit, #lnkSubmitCreditTop').show();
         } else {
             $('#savedPayment').attr('checked', 'checked');
             $(obj).addClass('checked');
             $('.new-card').slideUp();
             $('#<%= lnkSubmit.ClientID %>, #<%= lnkSubmitTop.ClientID %>').show();
-            $('#<%= lnkSubmitCredit.ClientID %>, #<%= lnkSubmitCreditTop.ClientID %>').hide();
+            $('#lnkSubmitCredit, #lnkSubmitCreditTop').hide();
         }
     }
 
@@ -560,22 +580,22 @@
         if ('<%= AccountInfo.Account.PaymentTypeDescription %>' == "COLLECT PAYMENT") {
             alert('You must enter credit card information for this order. COLLECT PAYMENT defaults can not be processed');
             //if ($(obj).hasClass('checked')) {
-                $('#savedPayment').removeAttr('checked');
-                $('#lblSavedPayment').removeClass('checked');
-                $('.new-card').slideDown();
-                $('#<%= lnkSubmit.ClientID %>, #<%= lnkSubmitTop.ClientID %>').hide();
-             $('#<%= lnkSubmitCredit.ClientID %>, #<%= lnkSubmitCreditTop.ClientID %>').show();
-            return false;
+            $('#savedPayment').removeAttr('checked');
+            $('#lblSavedPayment').removeClass('checked');
+            $('.new-card').slideDown();
+            $('#<%= lnkSubmit.ClientID %>, #<%= lnkSubmitTop.ClientID %>').hide();
+                $('#lnkSubmitCredit, #lnkSubmitCreditTop').show();
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
-    
-    function isNumberKey(evt) {
-        var charCode = (evt.which) ? evt.which : event.keyCode;
-        if (charCode != 46 && charCode > 31
-            && (charCode < 48 || charCode > 57))
-            return false;
 
-        return true;
-    }
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            if (charCode != 46 && charCode > 31
+                && (charCode < 48 || charCode > 57))
+                return false;
+
+            return true;
+        }
 </script>
